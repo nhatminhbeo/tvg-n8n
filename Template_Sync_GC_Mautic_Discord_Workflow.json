@@ -1,0 +1,127 @@
+{
+  "name": "Template Sync GC Mautic Discord",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        260,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{$node[\"GC Webhook Trigger\"].json[\"body\"][\"A1\"]}}",
+        "firstName": "={{$node[\"GC Webhook Trigger\"].json[\"body\"][\"First Name\"]}}",
+        "lastName": "={{$node[\"GC Webhook Trigger\"].json[\"body\"][\"Last Name\"]}}",
+        "company": "123",
+        "additionalFields": {
+          "customFieldsUi": {
+            "customFieldValues": [
+              {
+                "fieldId": "uid_facebook",
+                "fieldValue": "={{$node[\"GC Webhook Trigger\"].json[\"body\"][\"User ID\"]}}"
+              },
+              {
+                "fieldId": "group_name",
+                "fieldValue": "={{$node[\"GC Webhook Trigger\"].json[\"body\"][\"Group Name\"]}}"
+              }
+            ]
+          },
+          "phone": "={{$node[\"GC Webhook Trigger\"].json[\"body\"][\"A2\"]}}"
+        },
+        "options": {}
+      },
+      "name": "Mautic Add Contact API",
+      "type": "n8n-nodes-base.mautic",
+      "typeVersion": 1,
+      "position": [
+        760,
+        120
+      ],
+      "credentials": {
+        "mauticOAuth2Api": {
+          "id": "1",
+          "name": "Mautic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "demotranvugroup",
+        "options": {}
+      },
+      "name": "GC Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        520,
+        120
+      ],
+      "webhookId": "aa530de1-12d9-4863-9457-3de424207618"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "demo-mautic-discord",
+        "options": {}
+      },
+      "name": "Mautic Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        520,
+        320
+      ],
+      "webhookId": "9d7e0d18-1ed5-408b-ab73-990b64c18904",
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "webhookUri": "https://discord.com/api/webhooks/920383111857078292/LOcP1m7-yb-xmDYm1wEqAWZH_4dPEYcX_JI6_MkXj_OFfS4nuJoI2zKH51CDlS7P6Xrd",
+        "text": "=-----\nNew User Registered:\nFirst Name: {{$node[\"Mautic Webhook Trigger\"].json[\"body\"][\"mautic.lead_post_save_new\"][0][\"contact\"][\"fields\"][\"core\"][\"firstname\"][\"value\"]}}\nLast Name: {{$node[\"Mautic Webhook Trigger\"].json[\"body\"][\"mautic.lead_post_save_new\"][0][\"contact\"][\"fields\"][\"core\"][\"lastname\"][\"value\"]}}\nEmail: {{$node[\"Mautic Webhook Trigger\"].json[\"body\"][\"mautic.lead_post_save_new\"][0][\"contact\"][\"fields\"][\"core\"][\"email\"][\"value\"]}}\nPhone: {{$node[\"Mautic Webhook Trigger\"].json[\"body\"][\"mautic.lead_post_save_new\"][0][\"contact\"][\"fields\"][\"core\"][\"phone\"][\"value\"]}}"
+      },
+      "name": "Discord Send MSG Webhook",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 1,
+      "position": [
+        760,
+        320
+      ]
+    }
+  ],
+  "connections": {
+    "GC Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Mautic Add Contact API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mautic Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Discord Send MSG Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionTimeout": -1
+  },
+  "id": 1
+}
